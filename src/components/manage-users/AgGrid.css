@@ -1,0 +1,42 @@
+@import url(https://fonts.googleapis.com/css?family=Montserrat);
+
+.ag-theme-balham .ag-row-hover {
+  background-color: #f5f6f8;
+}
+
+.ag-header-cell {
+  background-color: #eff4fd;
+  color: #7d9eb5;
+  font-size: 13px !important;
+  font-family: "Montserrat", sans-serif !important;
+}
+
+div.ag-theme-balham div.ag-row {
+  font-size: 12px !important;
+  font-family: "Montserrat", sans-serif !important;
+}
+.ag-theme-balham .ag-root-wrapper {
+  /*border: none;*/
+}
+.ag-theme-balham .ag-row {
+  border-bottom: 1px solid #edeef0;
+}
+.ag-theme-balham {
+  margin-left: 0px;
+  margin-top: 10px;
+}
+.ag-center-cols-clipper {
+  text-align: left;
+}
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 6px;
+  
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #888;
+}
