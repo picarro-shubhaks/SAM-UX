@@ -1,3 +1,4 @@
+import { TramOutlined } from '@mui/icons-material';
 import React, { Fragment } from 'react';
 import * as Icon from 'react-bootstrap-icons';
 
@@ -14,32 +15,25 @@ const ActionCellRenderer = (props: Props) => {
   };
 
   const icons = [];
-  for (let idx = 0; idx < props.value.length; idx++) {
-    const action = props.value[idx];
-    if (action === 'Add') {
-      icons.push(
-        <span title="Add">
-          <Icon.Plus onClick={() => actionClickHandler('Add')} style={{ margin: '3px' }} color="#7d9eb5" size={12} />
-        </span>,
-      );
-    }
+  //for (let idx = 0; idx < props.value.length; idx++) {
+  //const action = props.value[idx];
 
-    if (action === 'Update') {
-      icons.push(
-        <Icon.PencilSquare
-          onClick={() => actionClickHandler('Update')}
-          style={{ margin: '3px' }}
-          color="#7d9eb5"
-          size={12}
-        />,
-      );
-    }
-    if (action === 'Delete') {
-      icons.push(
-        <Icon.Trash onClick={() => actionClickHandler('Assign')} style={{ margin: '3px' }} color="#7d9eb5" size={12} />,
-      );
-    }
+  if (props.value.edit === true) {
+    icons.push(
+      <Icon.PencilSquare
+        onClick={() => actionClickHandler('Update')}
+        style={{ margin: '3px' }}
+        color="#7d9eb5"
+        size={12}
+      />,
+    );
   }
+  if (props.value.delete === true) {
+    icons.push(
+      <Icon.Trash onClick={() => actionClickHandler('Assign')} style={{ margin: '3px' }} color="#7d9eb5" size={12} />,
+    );
+  }
+  // }
   return <Fragment>{icons}</Fragment>;
 };
 

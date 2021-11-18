@@ -1,24 +1,21 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CALL_STATUS } from '../types/CallStatus';
-import { User } from '../user/User.slice';
+import { CALL_STATUS } from '../models/CallStatus';
+import { CurrentUser } from '../models/User.model';
 
-export type UserState = {
-  currentUser: User | null;
+export type CurrentUserState = {
+  currentUser: CurrentUser | null;
   loadCallStatus: CALL_STATUS;
   accessToken: string | null;
-  refreshToken: string | null;
 };
 
 export type TokenPayload = {
   accessToken: string | null;
-  refreshToken: string | null;
 };
 
-const initialState: UserState = {
+const initialState: CurrentUserState = {
   currentUser: null,
   loadCallStatus: CALL_STATUS.IDLE,
   accessToken: null,
-  refreshToken: null,
 };
 
 function getInitialState() {
@@ -29,20 +26,19 @@ const CurrentUserSlice = createSlice({
   name: 'current-user',
   initialState: getInitialState(),
   reducers: {
-    resetState(state: UserState) {
+    resetState(state: CurrentUserState) {
       //should not directly change the state object
       //but each key of the state object should be modified.separetly
       Object.assign(state, getInitialState());
     },
-    setCurrentUser: (state: UserState, action: PayloadAction<User | null>) => {
+    setCurrentUser: (state: CurrentUserState, action: PayloadAction<CurrentUser | null>) => {
       state.currentUser = action.payload;
     },
-    setCurrentUserToken: (state: UserState, action: PayloadAction<TokenPayload>) => {
+    setCurrentUserToken: (state: CurrentUserState, action: PayloadAction<TokenPayload>) => {
       state.accessToken = action.payload.accessToken;
-      state.refreshToken = action.payload.refreshToken;
     },
 
-    setRemoteCallStatus: (state: UserState, action: PayloadAction<CALL_STATUS>) => {
+    setRemoteCallStatus: (state: CurrentUserState, action: PayloadAction<CALL_STATUS>) => {
       state.loadCallStatus = action.payload;
     },
   },

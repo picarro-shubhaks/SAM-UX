@@ -3,7 +3,7 @@ import { Fragment, useState } from 'react';
 
 import { useDispatch } from 'react-redux';
 import { getCurrentUser } from '../../sagas/current-user/CurrentUser.action';
-import goToKeyCloakSSOPageHandler from '../../utils/KeyCloakSSO';
+import { goToKeyCloakSSOPageHandler } from '../../sso/KeyCloakSSO';
 import { API_SERVER_STATUS } from '../../store/api-server-status/ApiServerStatus.slice';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/RootReducer';
@@ -20,21 +20,16 @@ const ApiServerStatus: React.FC = () => {
     initiateGetCurrentUser();
     setFirstLoad(false);
   }
-  return (
-    <Fragment>
-      {(apiServerStatus === API_SERVER_STATUS.NETWORK_ERROR ||
-        apiServerStatus === API_SERVER_STATUS.SERVER_UNAVAILABLE) && (
-        <Button variant="contained" size="small" onClick={initiateGetCurrentUser}>
-          Retry Login
-        </Button>
-      )}
-      {apiServerStatus === API_SERVER_STATUS.USER_LOGIN_REQUIRED && (
-        <Button variant="contained" size="small" onClick={goToKeyCloakSSOPageHandler}>
-          Login{' '}
-        </Button>
-      )}
-    </Fragment>
-  );
+  if (
+    apiServerStatus === API_SERVER_STATUS.USER_LOGIN_REQUIRED ||
+    apiServerStatus === API_SERVER_STATUS.USER_NOT_AUTHORISED
+  )
+    goToKeyCloakSSOPageHandler();
+
+  if (apiServerStatus === API_SERVER_STATUS.NETWORK_ERROR || apiServerStatus === API_SERVER_STATUS.SERVER_UNAVAILABLE)
+    initiateGetCurrentUser();
+
+  return <Fragment></Fragment>;
 };
 
 export default ApiServerStatus;

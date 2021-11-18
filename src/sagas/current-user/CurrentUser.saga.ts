@@ -5,31 +5,45 @@ import { CurrentUserActions } from '../../store/current-user/CurrentUser.slice';
 import { BASE_URL } from '../../constants';
 import { GET_CURRENT_USER } from './CurrentUser.action';
 import { executeApiRetry } from '../execute-api/ExecuteApi.action';
-import { CALL_STATUS } from '../../store/types/CallStatus';
+import { CALL_STATUS } from '../../store/models/CallStatus';
 import { API_SERVER_STATUS } from '../../store/api-server-status/ApiServerStatus.slice';
 import { ApiServerActions } from '../../store/api-server-status/ApiServerStatus.slice';
 import Cookies from 'js-cookie';
-import { User } from '../../store/user/User.slice';
+import { CurrentUser } from '../../store/models/User.model';
 
 export type Contract = {
   message: string;
 };
 
-export function PrepareAxiosRequestConfig(): AxiosRequestConfig {
+export function PrepareAxiosRequestConfigForCurrentUser(): AxiosRequestConfig {
   return {
     baseURL: BASE_URL,
-    url: '/loggedIn',
+    url: '/profile/current-user',
     method: 'GET',
   };
 }
 
-export function PrepareUserFromReply(executeApiReply: ExecuteApiResponse<Contract>): User {
-  const response: any = executeApiReply.response;
+export function PrepareAxiosRequestConfigForRefreshToken(): AxiosRequestConfig {
   return {
-    email: response.email,
-    firstName: response.firstName,
-    lastName: response.lastName,
-    applicableActions: response.applicableActions,
+    baseURL: BASE_URL,
+    url: '/auth/refresh-token',
+    method: 'GET',
+  };
+}
+
+export function PrepareCurrentUserFromReply(executeApiReply: ExecuteApiResponse<Contract>): CurrentUser {
+  const response: any = executeApiReply.response;
+  const { result } = response.data;
+
+  return {
+    email: result.email,
+    emailVerified: result.emailVerified,
+    firstName: result.firstName,
+    lastName: result.lastName,
+    username: result.username,
+    id: result.id,
+    roles: result.roles,
+    fullName: result.fullName,
   };
 }
 
@@ -37,37 +51,54 @@ export function PrepareUserFromReply(executeApiReply: ExecuteApiResponse<Contrac
 export function* workerGetCurrentUser() {
   // Set call in progress
   yield put(CurrentUserActions.setRemoteCallStatus(CALL_STATUS.IN_PROGRESS));
-  console.log('shubha inprogress');
+
   //get accessToken and refreshToken from the
   const accessToken = Cookies.get('access_token') || null;
-  const refreshToken = Cookies.get('refresh_token') || null;
-  console.log('accessToken');
-  yield put(CurrentUserActions.setCurrentUserToken({ accessToken: accessToken, refreshToken: refreshToken }));
+
+  yield put(CurrentUserActions.setCurrentUserToken({ accessToken: accessToken }));
 
   // Make the call
-  const executeApiReply: ExecuteApiResponse<Contract> | ExecuteApiError = yield call(
+  let executeApiReply: ExecuteApiResponse<Contract> | ExecuteApiError = yield call(
     ExecuteApi,
-    PrepareAxiosRequestConfig(),
+    PrepareAxiosRequestConfigForCurrentUser(),
     false,
   );
 
   if (executeApiReply.ok) {
-    // The ExecuteApi saga will only set error HOGWARTS_STATUS.
-    // Only this API shall set HOGWARTS_STATUS to OK.
+    // The ExecuteApi saga will only set error STATUS.
+    // Only this API shall set STATUS to OK.
     yield put(ApiServerActions.setApiServerStatus(API_SERVER_STATUS.OK));
 
-    yield put(CurrentUserActions.setCurrentUser(PrepareUserFromReply(executeApiReply)));
+    yield put(CurrentUserActions.setCurrentUser(PrepareCurrentUserFromReply(executeApiReply)));
 
     // Set user and made call status idle
     yield put(CurrentUserActions.setRemoteCallStatus(CALL_STATUS.IDLE));
 
     // Retry stalled APIs
-
     yield put(executeApiRetry());
-  } else {
-    // Set user to null and made call status as failed
-    yield put(CurrentUserActions.setRemoteCallStatus(CALL_STATUS.FAILED));
+    return;
   }
+  // current user api failed so making call to refresh_token api
+  executeApiReply = yield call(ExecuteApi, PrepareAxiosRequestConfigForRefreshToken(), false);
+
+  if (executeApiReply.ok) {
+    const accessToken = Cookies.get('access_token') || null;
+
+    yield put(CurrentUserActions.setCurrentUserToken({ accessToken: accessToken }));
+
+    // The ExecuteApi saga will only set error STATUS.
+    // Only this API shall set STATUS to OK.
+    yield put(ApiServerActions.setApiServerStatus(API_SERVER_STATUS.OK));
+
+    // Set user and made call status idle
+    yield put(CurrentUserActions.setRemoteCallStatus(CALL_STATUS.IDLE));
+
+    // Retry stalled APIs
+    yield put(executeApiRetry());
+  }
+
+  // Set user to null and made call status as failed
+  yield put(CurrentUserActions.setRemoteCallStatus(CALL_STATUS.FAILED));
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types

@@ -2,15 +2,16 @@ import React, { Fragment } from 'react';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import Button from '@mui/material/Button';
-
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/RootReducer';
 import ApiServerStatus from '../api-server-status/ApiServerStatus.component';
+import { API_SERVER_STATUS } from '../../store/api-server-status/ApiServerStatus.slice';
+import IconButton from '@mui/material/IconButton';
+import { goToKeyCloakSSOLogoutPageHandler } from '../../sso/KeyCloakSSO';
 
 const CurrentUser: React.FC = () => {
   const currentUser = useSelector((state: RootState) => state.currentUser.currentUser);
-
+  const apiServerStatus = useSelector((state: RootState) => state.apiServerStatus.apiServerStatus);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleCurrentUserClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -20,15 +21,22 @@ const CurrentUser: React.FC = () => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   return (
     <Fragment>
       <ApiServerStatus />
-      {currentUser !== null && (
-        <div>
-          <Button variant="contained" onClick={handleCurrentUserClick} startIcon={<AccountCircle />} size="small">
-            {currentUser.firstName}
-          </Button>
-
+      {apiServerStatus === API_SERVER_STATUS.OK && currentUser !== null && (
+        <Fragment>
+          <IconButton
+            size="large"
+            aria-label="account of current user"
+            aria-controls="menu-appbar"
+            aria-haspopup="true"
+            onClick={handleCurrentUserClick}
+            color="inherit"
+          >
+            <AccountCircle />
+          </IconButton>
           <Menu
             id="menu-appbar"
             anchorEl={anchorEl}
@@ -46,8 +54,9 @@ const CurrentUser: React.FC = () => {
           >
             <MenuItem onClick={handleClose}>Profile</MenuItem>
             <MenuItem onClick={handleClose}>My account</MenuItem>
+            <MenuItem onClick={goToKeyCloakSSOLogoutPageHandler}>Logout</MenuItem>
           </Menu>
-        </div>
+        </Fragment>
       )}
     </Fragment>
   );

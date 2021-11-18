@@ -1,14 +1,17 @@
-import React, { useMemo } from 'react';
+import React, { Fragment, useMemo } from 'react';
 
 import { AgGridColumn, AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/dist/styles/ag-grid.css';
 import 'ag-grid-community/dist/styles/ag-theme-balham.css';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/RootReducer';
 import './AgGrid.css';
 import ActionCellRenderer from './UserActionCellRenderer';
 import '../manage-users/style.css';
+import Typography from '@mui/material/Typography';
+import { getListOfUsers } from '../../sagas/manage-users/ListUsers.action';
 
+const drawerWidth = 240;
 export type columnDefType = {
   headerName: string;
   field: string;
@@ -36,12 +39,19 @@ const columnDefs: columnDefType = [
   {
     headerName: 'Actions',
     cellRenderer: 'actionCellRenderer',
-    field: 'applicableActions',
+    field: 'access',
     width: 100,
     pinned: 'right',
   },
 ];
-const UserDashboard: React.FC = () => {
+const ListUsers: React.FC = () => {
+  const loadCallStatus = useSelector((state: RootState) => state.user.loadCallStatus);
+  const isInitialized = useSelector((state: RootState) => state.user.isInitialized);
+  const dispatch = useDispatch();
+
+  if (!isInitialized && loadCallStatus === 'IDLE') {
+    dispatch(getListOfUsers());
+  }
   const Users = useSelector((state: RootState) => state.user.users);
 
   const defaultColDef = {
@@ -71,21 +81,22 @@ const UserDashboard: React.FC = () => {
   );
 
   return (
-    <div className="ag-theme-balham" style={{ height: 400, width: 800 }}>
-      <b>Manage Users</b>
-
-      <AgGridReact
-        rowData={Users}
-        defaultColDef={defaultColDef}
-        frameworkComponents={frameworkComponents}
-        autoGroupColumnDef={autoGroupColumnDef}
-      >
-        {columnDefs.map((column) => (
-          <AgGridColumn {...column} key={column.field} />
-        ))}
-      </AgGridReact>
-    </div>
+    <Fragment>
+      <Typography paragraph>Manage Users</Typography>
+      <div className="ag-theme-balham" style={{ height: 400, width: 800 }}>
+        <AgGridReact
+          rowData={Users}
+          defaultColDef={defaultColDef}
+          frameworkComponents={frameworkComponents}
+          autoGroupColumnDef={autoGroupColumnDef}
+        >
+          {columnDefs.map((column) => (
+            <AgGridColumn {...column} key={column.field} />
+          ))}
+        </AgGridReact>
+      </div>
+    </Fragment>
   );
 };
 
-export default UserDashboard;
+export default ListUsers;
