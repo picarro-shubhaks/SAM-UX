@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -23,10 +23,10 @@ import routes from '../../routes';
 import { Route, Routes } from 'react-router-dom';
 import ListGroups from '../manage-groups/ListGroups.component';
 import ListRoles from '../manage-roles/ListRoles.component';
-import LoginChangeEvent from '../login-change-event/LoginChangeEvent.component';
 import { NavLink } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import { NotFound } from '../not-found/NotFound.component';
+import { DashboardNavbar } from '../dashboard-navbar';
 
 const drawerWidth = 240;
 
@@ -38,7 +38,7 @@ interface Props {
   window?: () => Window;
 }
 
-export default function SideBarLatest(props: Props) {
+export default function SideBar(props: Props) {
   const currentUser = useSelector((state: RootState) => state.currentUser.currentUser);
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -123,14 +123,6 @@ export default function SideBarLatest(props: Props) {
   const protectedRoutes = (
     <Routes>
       <Route
-        path="/loginChangeEvent"
-        element={
-          <RequireAuth roles={[]}>
-            <LoginChangeEvent />
-          </RequireAuth>
-        }
-      />
-      <Route
         path="/manage-users"
         element={
           <RequireAuth roles={['security-manage-users']}>
@@ -149,7 +141,7 @@ export default function SideBarLatest(props: Props) {
       <Route
         path="/manage-roles"
         element={
-          <RequireAuth roles={['security-manage-roles1']}>
+          <RequireAuth roles={['security-list-roles']}>
             <ListRoles />
           </RequireAuth>
         }
@@ -175,34 +167,12 @@ export default function SideBarLatest(props: Props) {
   );
 
   const container = window !== undefined ? () => window().document.body : undefined;
-
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
 
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            Picarro
-          </Typography>
-          <CurrentUser></CurrentUser>
-        </Toolbar>
-      </AppBar>
+      <DashboardNavbar onSidebarOpen={() => setSidebarOpen(true)} />
       <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }} aria-label="mailbox folders">
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
 

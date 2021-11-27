@@ -3,7 +3,7 @@ import { CALL_STATUS } from '../models/CallStatus';
 import { User } from '../models/User.model';
 
 export type UserState = {
-  users: User[] | null;
+  users: User[];
   loadCallStatus: CALL_STATUS;
   isInitialized: boolean;
 };
@@ -27,7 +27,7 @@ const UserSlice = createSlice({
       //but each key of the state object should be modified.separetly
       Object.assign(state, getInitialState());
     },
-    setUsers: (state: UserState, action: PayloadAction<User[] | null>) => {
+    setUsers: (state: UserState, action: PayloadAction<User[]>) => {
       state.users = action.payload;
     },
     setRemoteCallStatus: (state: UserState, action: PayloadAction<CALL_STATUS>) => {

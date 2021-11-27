@@ -1,7 +1,6 @@
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
-import UserDashboard from './components/manage-users/ListUsers.component';
 import ListGroups from './components/manage-groups/ListGroups.component';
 import ListRoles from './components/manage-roles/ListRoles.component';
 import ListUsers from './components/manage-users/ListUsers.component';

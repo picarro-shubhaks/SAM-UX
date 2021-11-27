@@ -1,13 +1,12 @@
 import React from 'react';
 import { Fragment, useState } from 'react';
-
 import { useDispatch } from 'react-redux';
 import { getCurrentUser } from '../../sagas/current-user/CurrentUser.action';
 import { goToKeyCloakSSOPageHandler } from '../../sso/KeyCloakSSO';
 import { API_SERVER_STATUS } from '../../store/api-server-status/ApiServerStatus.slice';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/RootReducer';
-import Button from '@mui/material/Button';
+
 const ApiServerStatus: React.FC = () => {
   const apiServerStatus = useSelector((state: RootState) => state.apiServerStatus.apiServerStatus);
   const dispatch = useDispatch();
